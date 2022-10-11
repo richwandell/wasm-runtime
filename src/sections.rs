@@ -1,8 +1,6 @@
-use std::convert::TryFrom;
+use crate::num_enum;
 
-#[derive(Debug, Eq, PartialEq)]
-#[repr(u8)]
-pub(crate) enum Section {
+num_enum! {Section {
     Custom = 0,
     Type = 1,
     Import = 2,
@@ -16,16 +14,6 @@ pub(crate) enum Section {
     Code = 10,
     Data = 11,
     DataCount = 12
-}
+}}
 
-impl TryFrom<u8> for Section {
-    type Error = ();
 
-    fn try_from(v: u8) -> Result<Self, Self::Error> {
-        match v {
-            x if x >= Section::Custom as u8 && x <= Section::DataCount as u8 =>
-                Ok(unsafe { std::mem::transmute(x) }),
-            _ => Err(()),
-        }
-    }
-}
