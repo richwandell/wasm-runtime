@@ -1,14 +1,12 @@
-use std::convert::TryFrom;
-use std::fs::{File, read};
-use std::io::{BufRead, Cursor};
-use std::io::Read;
-use std::iter::FromIterator;
-use std::str;
-
 use byteorder::{BigEndian, LittleEndian, ReadBytesExt};
 use leb128;
-
+use std::convert::TryFrom;
+use std::fs::{read, File};
+use std::io::Cursor;
+use std::io::Read;
+use std::str;
 use crate::sections::Section;
+
 
 #[test]
 fn read_bytes() {
@@ -21,57 +19,88 @@ fn read_bytes() {
     let mut magic = [0; 4];
     cursor.read_exact(&mut magic).expect("TODO: panic message");
     let mut version = [0; 4];
-    cursor.read_exact(&mut version).expect("TODO: panic message");
+    cursor
+        .read_exact(&mut version)
+        .expect("TODO: panic message");
 
-    println!("magic number: {}, {}", format!("{:X?}", magic), str::from_utf8(&magic).unwrap());
+    println!(
+        "magic number: {}, {}",
+        format!("{:X?}", magic),
+        str::from_utf8(&magic).unwrap()
+    );
     let mut rdr = Cursor::new(&version);
     let v = rdr.read_u16::<LittleEndian>().unwrap();
     println!("version {}, {}", format!("{:X?}", version), v);
 
     loop {
         let mut section_id = [0; 1];
-        cursor.read_exact(&mut section_id).expect("TODO: panic message");
+        match cursor.read_exact(&mut section_id) {
+            Err(_) => {
+                break
+            }
+            _ => {}
+        }
+
         let length = leb128::read::unsigned(&mut cursor).expect("Should read number");
 
-        println!("{}, {}", section_id[0], length);
+        let mut section_rest = vec![0; length as usize];
+        cursor
+            .read_exact(&mut section_rest)
+            .expect("TODO: panic message");
+
         match Section::from(section_id[0]) {
             Section::Type => {
-                println!("it's a type section");
-                /*
-                Section type bytes:
-                0 - number of types of variables defined within the function
-                1 - which type (60 = function type)
-                2 - Number of input parameters
-                3 -> 3+@2 - Input parameter types
-                3+@2 - Number of output parameters
-                3+@2 -> @(3+@2) - Result types
-                */
-                let mut section_rest = vec![0; length as usize];
-                cursor.read_exact(&mut section_rest).expect("TODO: panic message");
-                println!("{:X?}", section_rest);
-
                 let number_of_types = section_rest[0];
                 let which_type = section_rest[1];
                 let number_of_parameters = section_rest[2];
-                let function_parameter_types = &section_rest[3..(3 + number_of_parameters as usize)];
+                let function_parameter_types =
+                    &section_rest[3..(3 + number_of_parameters as usize)];
                 let number_of_results = section_rest[3 + number_of_parameters as usize];
                 let result_types = &section_rest[3 + number_of_parameters as usize + 1..];
 
-
-                println!("{:X}, {:X}, {:X}, {:X?}, {:X}, {:X?}",
-                         number_of_types,
-                         which_type,
-                         number_of_parameters,
-                         function_parameter_types,
-                         number_of_results,
-                         result_types
+                println!(
+                    "type section: {:X}, {:X}, {:X}, {:X?}, {:X}, {:X?}",
+                    number_of_types,
+                    which_type,
+                    number_of_parameters,
+                    function_parameter_types,
+                    number_of_results,
+                    result_types
                 );
             }
-            _ => panic!()
-        }
-        break;
-    }
+            Section::Function => {
+                let number_of_functions = section_rest[0];
+                let function_indexes = &section_rest[1..];
 
+                println!(
+                    "function section: {:X}, {:X?}",
+                    number_of_functions, function_indexes
+                );
+            }
+            Section::Custom => {
+                println!("custom section: {:X?}", section_rest);
+            }
+            Section::Export => {
+                let number_of_exports = section_rest[0];
+                let length_of_export_name = section_rest[1];
+                let export_name = &section_rest[2..(2 + length_of_export_name as usize)];
+                println!(
+                    "export section: {:X}, {:X}, {:X?}, {}",
+                    number_of_exports,
+                    length_of_export_name,
+                    export_name,
+                    str::from_utf8(&export_name).unwrap()
+                );
+            }
+            Section::Code => {
+                println!("code section: {:X?}", section_rest);
+            }
+            _ => {
+                println!("{}", section_id[0]);
+                panic!()
+            }
+        }
+    }
 
     // for item in &[["magic", magic], ["version", version]] {
     //
