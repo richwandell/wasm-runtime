@@ -18,12 +18,12 @@
 * export name
 * if more than 1 export -> 2 byte export description.
 
-  | Export Type | Export ID |
-        |-------------|-----------|
-  | func        | func id   |
-  | table       | table id  |
-  | memory      | mem id    |
-  | global      | global id |
+| Export Type | Export ID |
+|-------------|-----------|
+| func        | func id   |
+| table       | table id  |
+| memory      | mem id    |
+| global      | global id |
 
 # build.sh
 
