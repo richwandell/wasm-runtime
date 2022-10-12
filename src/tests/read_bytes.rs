@@ -5,6 +5,7 @@ use std::fs::{read, File};
 use std::io::Cursor;
 use std::io::Read;
 use std::str;
+use leb128::read;
 use crate::sections::Section;
 
 
@@ -41,7 +42,7 @@ fn read_bytes() {
             _ => {}
         }
 
-        let length = leb128::read::unsigned(&mut cursor).expect("Should read number");
+        let length = read::unsigned(&mut cursor).expect("Should read number");
 
         let mut section_rest = vec![0; length as usize];
         cursor
@@ -50,13 +51,23 @@ fn read_bytes() {
 
         match Section::from(section_id[0]) {
             Section::Type => {
-                let number_of_types = section_rest[0];
-                let which_type = section_rest[1];
-                let number_of_parameters = section_rest[2];
-                let function_parameter_types =
-                    &section_rest[3..(3 + number_of_parameters as usize)];
-                let number_of_results = section_rest[3 + number_of_parameters as usize];
-                let result_types = &section_rest[3 + number_of_parameters as usize + 1..];
+                let mut section_cursor = Cursor::new(&section_rest);
+                let number_of_types = read::unsigned(&mut section_cursor).expect("Should read number");
+                let which_type = read::unsigned(&mut section_cursor).expect("Should read number");
+                let number_of_parameters = read::unsigned(&mut section_cursor).expect("Should read number");
+                let mut function_parameter_types = vec![];
+                for _ in 0..number_of_parameters {
+                    function_parameter_types.push(
+                        read::unsigned(&mut section_cursor).expect("Should read number")
+                    );
+                }
+                let number_of_results = read::unsigned(&mut section_cursor).expect("Should read number");
+                let mut result_types = vec![];
+                for _ in 0..number_of_results {
+                    result_types.push(
+                        read::unsigned(&mut section_cursor).expect("Should read number")
+                    );
+                }
 
                 println!(
                     "type section: {:X}, {:X}, {:X}, {:X?}, {:X}, {:X?}",
@@ -68,9 +79,19 @@ fn read_bytes() {
                     result_types
                 );
             }
+            Section::Import => {
+                // TODO: figure out how to read import section, it's probably just like export
+                println!("import section: {:X?}", section_rest);
+            }
             Section::Function => {
-                let number_of_functions = section_rest[0];
-                let function_indexes = &section_rest[1..];
+                let mut section_cursor = Cursor::new(&section_rest);
+                let number_of_functions = read::unsigned(&mut section_cursor).expect("Should read number");
+                let mut function_indexes = vec![];
+                for _ in 0..number_of_functions {
+                    function_indexes.push(
+                        read::unsigned(&mut section_cursor).expect("Should read number")
+                    )
+                }
 
                 println!(
                     "function section: {:X}, {:X?}",
@@ -81,19 +102,37 @@ fn read_bytes() {
                 println!("custom section: {:X?}", section_rest);
             }
             Section::Export => {
-                let number_of_exports = section_rest[0];
-                let length_of_export_name = section_rest[1];
-                let export_name = &section_rest[2..(2 + length_of_export_name as usize)];
-                println!(
-                    "export section: {:X}, {:X}, {:X?}, {}",
-                    number_of_exports,
-                    length_of_export_name,
-                    export_name,
-                    str::from_utf8(&export_name).unwrap()
-                );
+                // TODO: Add info about export desc (type and id)
+                /*
+                func = 0
+                table = 1
+                memory = 2
+                global = 3
+                 */
+                let mut section_cursor = Cursor::new(&section_rest);
+                let number_of_exports = read::unsigned(&mut section_cursor).expect("Should read number");
+                println!("{:X?}", section_rest);
+                for _ in 0..number_of_exports {
+                    let length_of_export_name = read::unsigned(&mut section_cursor).expect("Should read number");
+
+                    let mut export_name = vec![0; length_of_export_name as usize];
+                    section_cursor.read_exact(&mut export_name).expect("TODO: panic message");
+
+                    println!(
+                        "export section: {:X}, {:X}, {:X?}, {}",
+                        number_of_exports,
+                        length_of_export_name,
+                        export_name,
+                        str::from_utf8(&export_name).unwrap()
+                    );
+                }
             }
             Section::Code => {
                 println!("code section: {:X?}", section_rest);
+            }
+            Section::Memory => {
+                println!("code section: {:X?}", section_rest);
+
             }
             _ => {
                 println!("{}", section_id[0]);
