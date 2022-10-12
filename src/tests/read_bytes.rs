@@ -35,11 +35,8 @@ fn read_bytes() {
 
     loop {
         let mut section_id = [0; 1];
-        match cursor.read_exact(&mut section_id) {
-            Err(_) => {
-                break
-            }
-            _ => {}
+        if let Err(_) = cursor.read_exact(&mut section_id) {
+            break;
         }
 
         let length = read::unsigned(&mut cursor).expect("Should read number");
@@ -102,27 +99,24 @@ fn read_bytes() {
                 println!("custom section: {:X?}", section_rest);
             }
             Section::Export => {
-                // TODO: Add info about export desc (type and id)
-                /*
-                func = 0
-                table = 1
-                memory = 2
-                global = 3
-                 */
                 let mut section_cursor = Cursor::new(&section_rest);
                 let number_of_exports = read::unsigned(&mut section_cursor).expect("Should read number");
-                println!("{:X?}", section_rest);
                 for _ in 0..number_of_exports {
                     let length_of_export_name = read::unsigned(&mut section_cursor).expect("Should read number");
 
                     let mut export_name = vec![0; length_of_export_name as usize];
                     section_cursor.read_exact(&mut export_name).expect("TODO: panic message");
 
+                    let mut description: [u8; 2] = [0; 2];
+                    if number_of_exports > 1 {
+                        section_cursor.read_exact(&mut description).expect("TODO: panic message");
+                    }
                     println!(
-                        "export section: {:X}, {:X}, {:X?}, {}",
+                        "export section: {:X}, {:X}, {:X?}, {:X?}, {}",
                         number_of_exports,
                         length_of_export_name,
                         export_name,
+                        description,
                         str::from_utf8(&export_name).unwrap()
                     );
                 }
@@ -132,7 +126,6 @@ fn read_bytes() {
             }
             Section::Memory => {
                 println!("code section: {:X?}", section_rest);
-
             }
             _ => {
                 println!("{}", section_id[0]);
