@@ -11,7 +11,7 @@ use crate::sections::Section;
 
 #[test]
 fn read_bytes() {
-    let mut f = File::open("wasm/three-exports.wasm").unwrap();
+    let mut f = File::open("wasm/simple-import.wasm").unwrap();
 
     let mut buffer = Vec::new();
     f.read_to_end(&mut buffer).expect("TODO: panic message");
@@ -77,8 +77,33 @@ fn read_bytes() {
                 );
             }
             Section::Import => {
-                // TODO: figure out how to read import section, it's probably just like export
-                println!("import section: {:X?}", section_rest);
+                let mut section_cursor = Cursor::new(&section_rest);
+                let number_of_imports = read::unsigned(&mut section_cursor).expect("Should read number");
+                for _ in 0..number_of_imports {
+                    let length_of_import_module_name = read::unsigned(&mut section_cursor).expect("Should read number");
+                    let mut import_module_name = vec![0; length_of_import_module_name as usize];
+                    section_cursor.read_exact(&mut import_module_name).expect("TODO: panic message");
+
+                    let length_of_import_name_name = read::unsigned(&mut section_cursor).expect("Should read number");
+                    let mut import_name_name = vec![0; length_of_import_name_name as usize];
+                    section_cursor.read_exact(&mut import_name_name).expect("TODO: panic message");
+
+                    let mut description: [u8; 2] = [0; 2];
+                    if number_of_imports > 1 {
+                        section_cursor.read_exact(&mut description).expect("TODO: panic message");
+                    }
+                    println!(
+                        "import section: {:X}, {:X}, {:X?}, {:X}, {:X?}, {:X?}, {}, {}",
+                        number_of_imports,
+                        length_of_import_module_name,
+                        import_module_name,
+                        length_of_import_name_name,
+                        import_name_name,
+                        description,
+                        str::from_utf8(&import_module_name).unwrap(),
+                        str::from_utf8(&import_name_name).unwrap()
+                    );
+                }
             }
             Section::Function => {
                 let mut section_cursor = Cursor::new(&section_rest);

@@ -26,6 +26,22 @@
 | memory      | mem id    |
 | global      | global id |
 
+# Import section type
+
+* number of imports
+* length of import module name (leb128)
+* import module name
+* length of import name name (leb128)
+* import name name
+* import description
+
+| Import Type | Import ID |
+|-------------|-----------|
+| func        | func id   |
+| table       | table id  |
+| mem         | mem id    |
+| global      | global id |
+
 # build.sh
 
 compiles all .wat files in the wat folder in .wasm fils in wasm folder. This is used
