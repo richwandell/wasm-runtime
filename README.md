@@ -1,15 +1,16 @@
 # Type section bytes:
 
-* 0 - number of types of variables defined within the function
-* 1 - which type (60 = function type)
-* 2 - Number of input parameters leb128
-* 3 -> 3+@2 - Input parameter types
-* 3+@2 - Number of output parameters
-* 3+@2 -> @(3+@2) - Result types
+* number of types of variables defined within the function
+* which type (60 = function type)
+* Number of input parameters leb128
+* Input parameter types
+* Number of output parameters
+* Result types
 
 # Function section bytes:
 
-* 0 -
+* number of functions (leb128)
+* function indexes u8[]
 
 # Export section bytes:
 

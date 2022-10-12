@@ -11,7 +11,7 @@ use crate::sections::Section;
 
 #[test]
 fn read_bytes() {
-    let mut f = File::open("wasm/add.wasm").unwrap();
+    let mut f = File::open("wasm/three-exports.wasm").unwrap();
 
     let mut buffer = Vec::new();
     f.read_to_end(&mut buffer).expect("TODO: panic message");
