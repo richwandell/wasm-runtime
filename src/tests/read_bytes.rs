@@ -1,17 +1,19 @@
-use byteorder::{BigEndian, LittleEndian, ReadBytesExt};
-use leb128;
 use std::convert::TryFrom;
-use std::fs::{read, File};
+use std::fs::{File, read};
 use std::io::Cursor;
 use std::io::Read;
 use std::str;
+
+use byteorder::{BigEndian, LittleEndian, ReadBytesExt};
+use leb128;
 use leb128::read;
+
 use crate::sections::Section;
 
 
 #[test]
 fn read_bytes() {
-    let mut f = File::open("wasm/simple-import.wasm").unwrap();
+    let mut f = File::open("wasm/add.wasm").unwrap();
 
     let mut buffer = Vec::new();
     f.read_to_end(&mut buffer).expect("TODO: panic message");
@@ -147,7 +149,22 @@ fn read_bytes() {
                 }
             }
             Section::Code => {
-                println!("code section: {:X?}", section_rest);
+                let mut section_cursor = Cursor::new(&section_rest);
+                let code_section_id = read::unsigned(&mut section_cursor).expect("Should read number");
+                let code_section_size = read::unsigned(&mut section_cursor).expect("Should read number");
+                let number_of_functions = read::unsigned(&mut section_cursor).expect("Should read number");
+
+                if number_of_functions > 0 {
+                    for _ in 0..number_of_functions {
+                        let function_body_size = read::unsigned(&mut section_cursor).expect("Should read number");
+                        let number_of_local_declarations = read::unsigned(&mut section_cursor).expect("Should read number");
+                        println!("code section function: {:X}, {:X}", function_body_size, number_of_local_declarations);
+                    }
+                } else {
+                    let mut code = vec![0; (code_section_size - 1) as usize];
+                    section_cursor.read_exact(&mut code).expect("");
+                    println!("code section: {:X}, {:X}, {:X}, {:X?}", code_section_id, code_section_size, number_of_functions, code);
+                }
             }
             Section::Memory => {
                 println!("code section: {:X?}", section_rest);
