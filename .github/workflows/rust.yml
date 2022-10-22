@@ -8,7 +8,7 @@ env:
   CARGO_TERM_COLOR: always
 jobs:
   compile:
-    name: Compile site assets
+    name: Compile wat to wasm
     runs-on: ubuntu-latest
     steps:
       - name: Check out the repo
@@ -19,14 +19,7 @@ jobs:
           image: kirillt/wabt
           options: -v ${{ github.workspace }}:/src -w /src
           run: |
-            for FILE in wat/*; do
-              if [[ $FILE == *".wat"* ]]; then
-                OUTFILE=${FILE/.wat/.wasm}
-                OUTFILE=${OUTFILE/wat/wasm}
-                echo "compiling $FILE into $OUTFILE"
-                wat2wasm "$FILE" -o "$OUTFILE"
-              fi
-            done
+            for FILE in wat/*; do if [[ $FILE == *".wat"* ]]; then OUTFILE=${FILE/.wat/.wasm} OUTFILE=${OUTFILE/wat/wasm} wat2wasm "$FILE" -o "$OUTFILE"; fi done
       - name: Upload Artifacts
         uses: actions/upload-artifact@v2
         with:
