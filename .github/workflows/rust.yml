@@ -10,6 +10,21 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
+  compile:
+    name: Compile site assets
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v2
+      - name: Run the build process with Docker
+        uses: addnab/docker-run-action@v3
+        with:
+          image: kirillt/wabt
+          options: -v ${{ github.workspace }}:/src -w /src
+          run: |
+            wat2wasm wat/add.wat -o wasm/add.wasm
+            wat2wasm wat/simple-import.wat -o wasm/simple-import.wasm
+
   build:
 
     runs-on: ubuntu-latest
