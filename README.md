@@ -6,7 +6,7 @@ maybe a few videos and talks on how wasm works.
 
 https://github.com/<OWNER>/<REPOSITORY>/actions/workflows/<WORKFLOW_FILE>/badge.svg
 
-![Build Status](https://github.com/richwandell/wasm-runtime/.github/workflows/rust.yml/badge.svg)
+![Build Status](https://github.com/richwandell/wasm-runtime/actions/workflows/rust.yml/badge.svg)
 
 
 # Roadmap
