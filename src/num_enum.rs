@@ -27,7 +27,7 @@ macro_rules! num_enum {
     };
 
     ($name:ident {$($keys:tt=$vals:tt),*} ) => {
-        #[derive(Debug, Eq, PartialEq)]
+        #[derive(Clone, Debug, Eq, PartialEq)]
         #[repr(u8)]
         pub(crate) enum $name {
             $($keys = $vals),*
@@ -36,7 +36,7 @@ macro_rules! num_enum {
     };
 
     ($name:ident {$($keys:tt),*} ) => {
-        #[derive(Debug, Eq, PartialEq)]
+        #[derive(Clone, Debug, Eq, PartialEq)]
         #[repr(u8)]
         pub(crate) enum $name {
             $($keys),*
