@@ -4,7 +4,6 @@ Ill slowing add to this repo as I progress on this journey. This readme will be 
 where I can add notes and update my roadmap. I'm hoping I can use this project for a blog post or two and
 maybe a few videos and talks on how wasm works.
 
-https://github.com/<OWNER>/<REPOSITORY>/actions/workflows/<WORKFLOW_FILE>/badge.svg
 
 ![Build Status](https://github.com/richwandell/wasm-runtime/actions/workflows/rust.yml/badge.svg)
 
