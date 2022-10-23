@@ -64,6 +64,15 @@ pub(crate) fn read_export_section(section_rest: Vec<u8>) -> Section {
             description_id = section_cursor.leb_read() as u32;
         }
 
+        println!("export section: {:X}, {:X}, {:X?}, [{:X}, {}], {}",
+            number_of_exports,
+            length_of_export_name,
+            export_name,
+            description_type,
+            description_id,
+            str::from_utf8(&export_name).unwrap()
+        );
+
         export_sections.push(ExportSection {
             export_name: str::from_utf8(&export_name).unwrap().to_string(),
             export_desc: match ExportDescId::from(description_type) {
@@ -73,7 +82,7 @@ pub(crate) fn read_export_section(section_rest: Vec<u8>) -> Section {
                 ExportDescId::Table => ExportDesc::Table {
                     id: description_id
                 },
-                ExportDescId::Memory => ExportDesc::Table {
+                ExportDescId::Memory => ExportDesc::Memory {
                     id: description_id
                 },
                 ExportDescId::Global => ExportDesc::Global {

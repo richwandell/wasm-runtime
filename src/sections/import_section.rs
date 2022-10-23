@@ -19,17 +19,17 @@ pub(crate) fn read_import_section(section_rest: Vec<u8>) -> Section {
         if number_of_imports > 1 {
             section_cursor.read_exact(&mut description).expect("TODO: panic message");
         }
-        // println!(
-        //     "import section: {:X}, {:X}, {:X?}, {:X}, {:X?}, {:X?}, {}, {}",
-        //     number_of_imports,
-        //     length_of_import_module_name,
-        //     import_module_name,
-        //     length_of_import_name_name,
-        //     import_name_name,
-        //     description,
-        //     str::from_utf8(&import_module_name).unwrap(),
-        //     str::from_utf8(&import_name_name).unwrap()
-        // );
+        println!(
+            "import section: {:X}, {:X}, {:X?}, {:X}, {:X?}, {:X?}, {}, {}",
+            number_of_imports,
+            length_of_import_module_name,
+            import_module_name,
+            length_of_import_name_name,
+            import_name_name,
+            description,
+            str::from_utf8(&import_module_name).unwrap(),
+            str::from_utf8(&import_name_name).unwrap()
+        );
     }
     Section::Import
 }
