@@ -4,16 +4,6 @@ use crate::num_enum;
 use crate::sections::Section;
 use crate::utils::JustRead;
 
-/*
-// println!(
-        //     "export section: {:X}, {:X}, {:X?}, {:X?}, {}",
-        //     number_of_exports,
-        //     length_of_export_name,
-        //     export_name,
-        //     description,
-        //     str::from_utf8(&export_name).unwrap()
-        // );
- */
 
 num_enum! {ExportDescId {
     Function = 0x00,
@@ -64,14 +54,14 @@ pub(crate) fn read_export_section(section_rest: Vec<u8>) -> Section {
             description_id = section_cursor.leb_read() as u32;
         }
 
-        println!("export section: {:X}, {:X}, {:X?}, [{:X}, {}], {}",
-            number_of_exports,
-            length_of_export_name,
-            export_name,
-            description_type,
-            description_id,
-            str::from_utf8(&export_name).unwrap()
-        );
+        // println!("export section: {:X}, {:X}, {:X?}, [{:X}, {}], {}",
+        //     number_of_exports,
+        //     length_of_export_name,
+        //     export_name,
+        //     description_type,
+        //     description_id,
+        //     str::from_utf8(&export_name).unwrap()
+        // );
 
         export_sections.push(ExportSection {
             export_name: str::from_utf8(&export_name).unwrap().to_string(),
