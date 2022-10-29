@@ -63,13 +63,25 @@ pub(crate) fn read_sections(cursor: &mut Cursor<&Vec<u8>>) {
 
         sections.push(match SectionId::from(section_id[0]) {
             SectionId::Type => read_type_section(section_rest),
-            SectionId::Import => read_import_section(section_rest),
+            SectionId::Import => {
+                println!("import section: {:X?}", section_rest);
+                read_import_section(section_rest)
+            },
             SectionId::Function => read_function_section(section_rest),
-            SectionId::Custom => Section::Custom,
+            SectionId::Custom => {
+                println!("custom section: {:X?}", section_rest);
+                Section::Custom
+            },
             SectionId::Export => read_export_section(section_rest),
             SectionId::Code => read_code_section(section_rest),
-            SectionId::Memory => Section::Memory,
-            _ => Section::NotImplemented
+            SectionId::Memory => {
+                println!("memory section: {:X?}", section_rest);
+                Section::Memory
+            },
+            _ => {
+                println!("not implemented: {:X}, {:X?}", section_id[0], section_rest);
+                Section::NotImplemented
+            }
         })
     }
 }

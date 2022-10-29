@@ -1,4 +1,4 @@
-use crate::sections::import_section::{ImportDesc, ImportSection, read_import_section};
+use crate::sections::import_section::{ImportDesc, ImportRefType, ImportSection, read_import_section};
 use crate::sections::Section;
 
 #[test]
@@ -22,6 +22,39 @@ fn test_read_single_import_section() {
             }
         ]
     };
+
+    assert_eq!(section, expected);
+}
+
+#[test]
+fn test_read_table_import_and_memory_import() {
+    let section_bytes = vec![
+        0x2, // 2 imports
+        0x2, 0x6A, 0x73, 0x3, 0x74, 0x62, 0x6C, 0x1, 0x70, 0x0, 0x2, // table
+        0x2, 0x6A, 0x73, 0x3, 0x6D, 0x65, 0x6D, 0x2, 0x0, 0x1, // memory
+    ];
+    let section = read_import_section(section_bytes);
+
+    let expected = Section::Import {
+        imports: vec![
+            ImportSection {
+                import_module_name: "js".to_string(),
+                import_name: "tbl".to_string(),
+                import_desc: ImportDesc::Table {
+                    ref_type: ImportRefType::FuncRef,
+                    limits: vec![2],
+                },
+            },
+            ImportSection {
+                import_module_name: "js".to_string(),
+                import_name: "mem".to_string(),
+                import_desc: ImportDesc::Memory {
+                    id: 0
+                },
+            },
+        ]
+    };
+
 
     assert_eq!(section, expected);
 }
