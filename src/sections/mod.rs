@@ -4,7 +4,7 @@ use crate::{num_enum};
 use crate::sections::code_section::read_code_section;
 use crate::sections::export_section::{ExportSection, read_export_section};
 use crate::sections::function_section::read_function_section;
-use crate::sections::import_section::read_import_section;
+use crate::sections::import_section::{ImportSection, read_import_section};
 use crate::sections::type_section::{read_type_section, TypeSection};
 use crate::utils::JustRead;
 
@@ -35,7 +35,9 @@ pub(crate) enum Section {
     Type {
         types: Vec<TypeSection>
     },
-    Import,
+    Import {
+        imports: Vec<ImportSection>
+    },
     Function,
     Custom,
     Export {
