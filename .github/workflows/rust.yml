@@ -22,6 +22,7 @@ jobs:
             wat2wasm wat/add.wat -o wasm/add.wasm
             wat2wasm wat/simple-import.wat -o wasm/simple-import.wasm
             wat2wasm wat/three-exports.wat -o wasm/three-exports.wasm
+            wat2wasm wat/two-types.wat -o wasm/two-types.wasm
       - name: Upload Artifacts
         uses: actions/upload-artifact@v2
         with:
