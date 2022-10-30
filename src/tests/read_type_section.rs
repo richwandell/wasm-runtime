@@ -1,6 +1,7 @@
 use crate::sections::Section;
-use crate::sections::type_section::{read_type_section, TypeSection, ValueType};
+use crate::sections::type_section::{read_type_section, TypeSection};
 use crate::sections::type_section::TypeSection::Function;
+use crate::types::ValueType;
 
 #[test]
 fn test_read_type_section() {

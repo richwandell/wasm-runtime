@@ -1,32 +1,12 @@
 use std::io::Cursor;
 use crate::num_enum;
 use crate::sections::Section;
+use crate::types::ValueType;
 
 use crate::utils::JustRead;
 
-/*
-Type section has the following bytes
-number_of_types,
-which_type,
-number_of_parameters,
-function_parameter_types,
-number_of_results,
-result_types
- */
-
-
 num_enum! {SectionTypeId {
     Function = 0x60
-}}
-
-num_enum!  {ValueType {
-    I32 = 0x7F,
-    I64 = 0x7E,
-    F32 = 0x7D,
-    F64 = 0x7C,
-    V128 = 0x7B,
-    FuncRef = 0x70,
-    ExternRef = 0x6F
 }}
 
 #[derive(Clone, Debug, PartialEq)]
@@ -55,15 +35,15 @@ pub(crate) fn read_type_section(section_rest: Vec<u8>) -> Section {
             result_types.push(ValueType::from(section_cursor.leb_read()));
         }
 
-        println!(
-            "type section: {:X}, {:X}, {:X}, {:X?}, {:X}, {:X?}",
-            number_of_types,
-            which_type,
-            number_of_parameters,
-            function_parameter_types,
-            number_of_results,
-            result_types
-        );
+        // println!(
+        //     "type section: {:X}, {:X}, {:X}, {:X?}, {:X}, {:X?}",
+        //     number_of_types,
+        //     which_type,
+        //     number_of_parameters,
+        //     function_parameter_types,
+        //     number_of_results,
+        //     result_types
+        // );
         types.push(match SectionTypeId::from(which_type) {
             SectionTypeId::Function => TypeSection::Function {
                 params: function_parameter_types,

@@ -49,12 +49,44 @@ fn test_read_table_import_and_memory_import() {
                 import_module_name: "js".to_string(),
                 import_name: "mem".to_string(),
                 import_desc: ImportDesc::Memory {
-                    id: 0
+                    limits: vec![1]
                 },
             },
         ]
     };
 
+
+    assert_eq!(section, expected);
+}
+
+#[test]
+fn test_read_table_import_limit_import() {
+    let section_bytes = vec![
+        0x2,
+        0x2, 0x6A, 0x73, 0x3, 0x74, 0x62, 0x6C, 0x1, 0x70, 0x1, 0x2, 0x2,
+        0x2, 0x6A, 0x73, 0x3, 0x6D, 0x65, 0x6D, 0x2, 0x1, 0x1, 0x2 // memory
+    ];
+    let section = read_import_section(section_bytes);
+
+    let expected = Section::Import {
+        imports: vec![
+            ImportSection {
+                import_module_name: "js".to_string(),
+                import_name: "tbl".to_string(),
+                import_desc: ImportDesc::Table {
+                    ref_type: ImportRefType::FuncRef,
+                    limits: vec![2, 2]
+                }
+            },
+            ImportSection {
+                import_module_name: "js".to_string(),
+                import_name: "mem".to_string(),
+                import_desc: ImportDesc::Memory {
+                    limits: vec![1, 2]
+                },
+            },
+        ]
+    };
 
     assert_eq!(section, expected);
 }

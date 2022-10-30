@@ -24,6 +24,7 @@ jobs:
             wat2wasm wat/three-exports.wat -o wasm/three-exports.wasm
             wat2wasm wat/two-types.wat -o wasm/two-types.wasm
             wat2wasm wat/table-import.wat -o wasm/table-import.wasm
+            wat2wasm wat/table-import-limit.wat -o wasm/table-import-limit.wasm
       - name: Upload Artifacts
         uses: actions/upload-artifact@v2
         with:

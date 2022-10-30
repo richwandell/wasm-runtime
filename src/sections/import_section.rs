@@ -1,8 +1,10 @@
 use std::io::{Cursor, Read};
+use Bool::{Yes, No};
 
 use crate::num_enum;
 use crate::sections::export_section::{ExportDesc, ExportDescId, ExportSection};
 use crate::sections::Section;
+use crate::types::ValueType;
 use crate::utils::JustRead;
 
 num_enum! {ImportDescId {
@@ -17,6 +19,11 @@ num_enum! {ImportRefType {
     ExternRef = 0x6F
 }}
 
+num_enum! {Bool {
+    No = 0x0,
+    Yes = 0x1
+}}
+
 #[derive(Clone, Debug, PartialEq)]
 pub(crate) enum ImportDesc {
     Function {
@@ -27,10 +34,11 @@ pub(crate) enum ImportDesc {
         limits: Vec<u32>
     },
     Memory {
-        id: u32
+        limits: Vec<u32>
     },
     Global {
-        id: u32
+        val_type: ValueType,
+        mutable: bool
     },
 }
 
@@ -53,10 +61,7 @@ pub(crate) fn read_import_section(section_rest: Vec<u8>) -> Section {
         let length_of_import_name_name = section_cursor.leb_read();
         let mut import_name_name = vec![0; length_of_import_name_name as usize];
         section_cursor.read_exact(&mut import_name_name).expect("TODO: panic message");
-
-
         let mut description_type = section_cursor.just_read(1)[0];
-
 
         import_sections.push(ImportSection {
             import_module_name: str::from_utf8(&import_module_name).unwrap().to_string(),
@@ -65,26 +70,25 @@ pub(crate) fn read_import_section(section_rest: Vec<u8>) -> Section {
                 ImportDescId::Function => ImportDesc::Function {
                     id:  section_cursor.leb_read() as u32
                 },
-                ImportDescId::Table => {
-                    let ref_type = ImportRefType::from(section_cursor.just_read(1)[0]);
-                    let limits = match section_cursor.just_read(1)[0] {
-                        0x0 => {
-                            vec![section_cursor.leb_read() as u32]
-                        }
-                        0x1 => {
-                            vec![section_cursor.leb_read() as u32, section_cursor.leb_read() as u32]
-                        }
-                        _ => {
-                            vec![]
-                        }
-                    };
-                    ImportDesc::Table { ref_type, limits }
+                ImportDescId::Table => ImportDesc::Table {
+                    ref_type: ImportRefType::from(section_cursor.just_read(1)[0]),
+                    limits: match Bool::from(section_cursor.just_read(1)[0]) {
+                        No => vec![section_cursor.leb_read() as u32],
+                        Yes => vec![section_cursor.leb_read() as u32, section_cursor.leb_read() as u32]
+                    }
                 },
                 ImportDescId::Memory => ImportDesc::Memory {
-                    id: section_cursor.leb_read() as u32
+                    limits: match Bool::from(section_cursor.just_read(1)[0]) {
+                        No => vec![section_cursor.leb_read() as u32],
+                        Yes => vec![section_cursor.leb_read() as u32, section_cursor.leb_read() as u32]
+                    }
                 },
                 ImportDescId::Global => ImportDesc::Global {
-                    id: section_cursor.leb_read() as u32
+                    val_type: ValueType::from(section_cursor.just_read(1)[0]),
+                    mutable: match Bool::from(section_cursor.just_read(1)[0]) {
+                        No => false,
+                        Yes => true
+                    }
                 }
             },
         });
