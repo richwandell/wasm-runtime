@@ -16,18 +16,17 @@ maybe a few videos and talks on how wasm works.
     * [x] Import = 2,
     * [x] Function = 3,
     * [x] Table = 4,
-    * [ ] Memory = 5,
+    * [x] Memory = 5,
     * [ ] Global = 6,
-    * [x] Export = 7, 
+    * [x] Export = 7,
     * [ ] Start = 8,
     * [ ] Element = 9,
     * [ ] Code = 10,
-    * [ ] Data = 11,
+    * [x] Data = 11,
     * [ ] DataCount = 12
 * [ ] Create Enums for each type of section
 * [ ] Create Enums for each instruction
     * [ ] Parse code section into instruction enums
-
 
 # build.sh
 
