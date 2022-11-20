@@ -22,7 +22,11 @@ maybe a few videos and talks on how wasm works.
     * [ ] Table = 4,
     * [ ] Memory = 5,
     * [ ] Global = 6,
-    * [x] Export = 7,
+    * [ ] Export = 7,
+        * [x] Function
+        * [x] Table
+        * [x] Memory
+        * [ ] Global
     * [ ] Start = 8,
     * [ ] Element = 9,
     * [ ] Code = 10,
