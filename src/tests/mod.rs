@@ -5,3 +5,6 @@ mod read_type_section;
 mod read_wasm_file;
 mod read_function_section;
 mod read_code_section;
+mod read_table_section;
+mod read_memory_section;
+mod read_data_section;

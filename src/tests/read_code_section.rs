@@ -1,5 +1,5 @@
-use crate::sections::code_section::{CodeSection, read_code_section};
-use crate::sections::Section::Code;
+use crate::sections::code_section::{Code, read_code_section};
+use crate::sections::Section;
 
 #[test]
 fn test_add() {
@@ -19,9 +19,9 @@ fn test_add() {
 
     let section = read_code_section(section_bytes);
 
-    let expected = Code {
+    let expected = Section::Code {
         codes: vec![
-            CodeSection {
+            Code {
                 instructions: vec![
                     Unreachable,
                     LocalGet { x: 0 },
@@ -63,9 +63,9 @@ fn test_add_sub() {
 
     let section = read_code_section(section_bytes);
 
-    let expected = Code {
+    let expected = Section::Code {
         codes: vec![
-            CodeSection {
+            Code {
                 instructions: vec![
                     Unreachable,
                     LocalGet { x: 0 },
@@ -74,7 +74,7 @@ fn test_add_sub() {
                     End
                 ]
             },
-            CodeSection {
+            Code {
                 instructions: vec![
                     Unreachable,
                     LocalGet { x: 0 },

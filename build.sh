@@ -7,11 +7,11 @@ for FILE in wat/*; do
     OUTFILE=${FILE/.wat/.wasm}
     OUTFILE=${OUTFILE/wat/wasm}
     echo "compiling $FILE into $OUTFILE"
-    docker run -it --rm -v "$PWD":/src -w /src kirillt/wabt wat2wasm "$FILE" -o "$OUTFILE"
+    docker run -it --rm -v "$PWD":/src -w /src kirillt/wabt wat2wasm "$FILE" -o "$OUTFILE" --enable-bulk-memory
   fi
 done
 
-for FILE in wat/*; do if [[ $FILE == *".wat"* ]]; then OUTFILE=${FILE/.wat/.wasm} OUTFILE=${OUTFILE/wat/wasm} echo "compiling $FILE into $OUTFILE" wat2wasm "$FILE" -o "$OUTFILE"; fi done
+
 
 
 

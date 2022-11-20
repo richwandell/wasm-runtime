@@ -1,11 +1,14 @@
 use std::io::{Cursor, Read};
 
 use crate::num_enum;
-use crate::sections::code_section::{CodeSection, read_code_section};
-use crate::sections::export_section::{read_export_section, ExportSection};
-use crate::sections::function_section::{FunctionSection, read_function_section};
-use crate::sections::import_section::{read_import_section, ImportSection};
-use crate::sections::type_section::{read_type_section, TypeSection};
+use crate::sections::code_section::{Code, read_code_section};
+use crate::sections::data_section::{Data, read_data_section};
+use crate::sections::export_section::{read_export_section, Export};
+use crate::sections::function_section::{Function, read_function_section};
+use crate::sections::import_section::{read_import_section, Import};
+use crate::sections::memory_section::{Memory, read_memory_section};
+use crate::sections::table_section::{read_table_section, Table};
+use crate::sections::type_section::{read_type_section, Type};
 use crate::utils::JustRead;
 
 pub(crate) mod code_section;
@@ -13,6 +16,9 @@ pub(crate) mod export_section;
 pub(crate) mod function_section;
 pub(crate) mod import_section;
 pub(crate) mod type_section;
+pub(crate) mod table_section;
+pub(crate) mod memory_section;
+pub(crate) mod data_section;
 
 num_enum! {SectionId {
     Custom = 0,
@@ -32,14 +38,15 @@ num_enum! {SectionId {
 
 #[derive(Clone, Debug, PartialEq)]
 pub(crate) enum Section {
-    Type { types: Vec<TypeSection> },
-    Import { imports: Vec<ImportSection> },
-    Function { functions: Vec<FunctionSection>},
+    Type { types: Vec<Type> },
+    Import { imports: Vec<Import> },
+    Function { functions: Vec<Function>},
     Custom,
-    Export { exports: Vec<ExportSection> },
-    Code { codes: Vec<CodeSection>},
-    Memory,
-    Table,
+    Export { exports: Vec<Export> },
+    Code { codes: Vec<Code>},
+    Memory { memories: Vec<Memory>},
+    Table { tables: Vec<Table>},
+    Data { segments: Vec<Data> },
     NotImplemented,
 }
 
@@ -89,12 +96,17 @@ pub(crate) fn read_sections(cursor: &mut Cursor<&Vec<u8>>) -> Vec<Section> {
             SectionId::Memory => {
                 #[cfg(feature = "print_in_tests")]
                 println!("memory section: {:X?}", section_rest);
-                Section::Memory
+                read_memory_section(section_rest)
             }
             SectionId::Table => {
                 #[cfg(feature = "print_in_tests")]
-                println!("memory section: {:X?}", section_rest);
-                Section::Table
+                println!("table section: {:X?}", section_rest);
+                read_table_section(section_rest)
+            },
+            SectionId::Data => {
+                #[cfg(feature = "print_in_tests")]
+                println!("data section: {:X?}", section_rest);
+                read_data_section(section_rest)
             },
             _ => {
                 #[cfg(feature = "print_in_tests")]

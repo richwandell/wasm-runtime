@@ -1,5 +1,5 @@
-use crate::sections::type_section::TypeSection::Function;
-use crate::sections::type_section::{read_type_section, TypeSection};
+use crate::sections::type_section::Type::Function;
+use crate::sections::type_section::{read_type_section, Type};
 use crate::sections::Section;
 use crate::types::ValueType;
 
@@ -11,7 +11,7 @@ fn test_read_type_section() {
     ];
     let type_section = read_type_section(type_section_bytes);
     let expected = Section::Type {
-        types: vec![TypeSection::Function {
+        types: vec![Type::Function {
             params: vec![ValueType::I32, ValueType::I32],
             results: vec![ValueType::I32],
         }],

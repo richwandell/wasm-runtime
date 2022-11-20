@@ -1,3 +1,7 @@
+use crate::instructions::Inst::{Block, Else, End, F32Sub, I32Add, I32Const, I32Store, If, LocalGet, LocalSet, LocalTee, Loop, MemGrow, Nop, Unreachable};
+use std::io::{Cursor};
+use crate::utils::JustRead;
+
 #[allow(dead_code)]
 #[derive(Clone, Debug, PartialEq)]
 pub(crate) enum Inst {
@@ -56,6 +60,11 @@ pub(crate) enum Inst {
     // 0x2d
     I23Load8u,
 
+    //0x36
+    I32Store {
+        offset: u32,
+        align: u32
+    },
     // 0x38
     F32Store,
     // 0x39
@@ -64,6 +73,8 @@ pub(crate) enum Inst {
     MemSize,
     // 0x40
     MemGrow,
+    // 0x41
+    I32Const { n: i32 },
     // 0x43
     F32Const,
     // 0x44
@@ -82,4 +93,39 @@ pub(crate) enum Inst {
 
     // 0x93
     F32Sub
+}
+
+pub(crate) fn get_inst(inst: u8, cursor: &mut Cursor<&Vec<u8>>) -> Inst {
+    match inst {
+        0x0 => Unreachable,
+        0x01 => Nop,
+        0x02 => Block,
+        0x03 => Loop,
+        0x04 => If,
+        0x05 => Else,
+        0x0b => End,
+        0x20 => LocalGet {
+            x: cursor.just_read(1)[0] as usize
+        },
+        0x21 => LocalSet {
+            x: cursor.just_read(1)[0] as usize
+        },
+        0x22 => LocalTee {
+            x: cursor.just_read(1)[0] as usize
+        },
+        0x36 => I32Store {
+            offset: cursor.leb_read() as u32,
+            align: cursor.leb_read() as u32
+        },
+        0x40 => MemGrow,
+        0x41 => I32Const {
+            n: cursor.leb_read() as i32
+        },
+        0x6A => I32Add,
+        0x93 => F32Sub,
+        _ => {
+            println!("{:X}", inst);
+            Nop
+        }
+    }
 }

@@ -3,7 +3,7 @@ use Bool::{No, Yes};
 
 use crate::num_enum;
 use crate::sections::Section;
-use crate::types::ValueType;
+use crate::types::{ValueType, Bool};
 use crate::utils::JustRead;
 
 num_enum! {ImportDescId {
@@ -13,23 +13,13 @@ num_enum! {ImportDescId {
     Global = 0x03
 }}
 
-num_enum! {ImportRefType {
-    FuncRef = 0x70,
-    ExternRef = 0x6F
-}}
-
-num_enum! {Bool {
-    No = 0x0,
-    Yes = 0x1
-}}
-
 #[derive(Clone, Debug, PartialEq)]
 pub(crate) enum ImportDesc {
     Function {
         type_id: u32,
     },
     Table {
-        ref_type: ImportRefType,
+        ref_type: ValueType,
         limits: Vec<u32>,
     },
     Memory {
@@ -42,10 +32,10 @@ pub(crate) enum ImportDesc {
 }
 
 #[derive(Clone, Debug, PartialEq)]
-pub(crate) struct ImportSection {
-    pub(crate) import_module_name: String,
-    pub(crate) import_name: String,
-    pub(crate) import_desc: ImportDesc,
+pub(crate) struct Import {
+    pub(crate) module_name: String,
+    pub(crate) name: String,
+    pub(crate) desc: ImportDesc,
 }
 
 pub(crate) fn read_import_section(section_rest: Vec<u8>) -> Section {
@@ -64,15 +54,15 @@ pub(crate) fn read_import_section(section_rest: Vec<u8>) -> Section {
             .expect("TODO: panic message");
         let description_type = section_cursor.just_read(1)[0];
 
-        import_sections.push(ImportSection {
-            import_module_name: str::from_utf8(&import_module_name).unwrap().to_string(),
-            import_name: str::from_utf8(&import_name_name).unwrap().to_string(),
-            import_desc: match ImportDescId::from(description_type) {
+        import_sections.push(Import {
+            module_name: str::from_utf8(&import_module_name).unwrap().to_string(),
+            name: str::from_utf8(&import_name_name).unwrap().to_string(),
+            desc: match ImportDescId::from(description_type) {
                 ImportDescId::Function => ImportDesc::Function {
                     type_id: section_cursor.leb_read() as u32,
                 },
                 ImportDescId::Table => ImportDesc::Table {
-                    ref_type: ImportRefType::from(section_cursor.just_read(1)[0]),
+                    ref_type: ValueType::from(section_cursor.just_read(1)[0]),
                     limits: match Bool::from(section_cursor.just_read(1)[0]) {
                         No => vec![section_cursor.leb_read() as u32],
                         Yes => vec![
@@ -87,17 +77,17 @@ pub(crate) fn read_import_section(section_rest: Vec<u8>) -> Section {
                         Yes => vec![
                             section_cursor.leb_read() as u32,
                             section_cursor.leb_read() as u32,
-                        ],
-                    },
+                        ]
+                    }
                 },
                 ImportDescId::Global => ImportDesc::Global {
                     val_type: ValueType::from(section_cursor.just_read(1)[0]),
                     mutable: match Bool::from(section_cursor.just_read(1)[0]) {
                         No => false,
-                        Yes => true,
-                    },
-                },
-            },
+                        Yes => true
+                    }
+                }
+            }
         });
     }
     Section::Import {

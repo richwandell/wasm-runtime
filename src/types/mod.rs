@@ -9,3 +9,8 @@ num_enum! {ValueType {
     FuncRef = 0x70,
     ExternRef = 0x6F
 }}
+
+num_enum! {Bool {
+    No = 0x0,
+    Yes = 0x1
+}}

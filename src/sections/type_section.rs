@@ -10,7 +10,7 @@ num_enum! {SectionTypeId {
 }}
 
 #[derive(Clone, Debug, PartialEq)]
-pub(crate) enum TypeSection {
+pub(crate) enum Type {
     Function {
         params: Vec<ValueType>,
         results: Vec<ValueType>,
@@ -34,18 +34,8 @@ pub(crate) fn read_type_section(section_rest: Vec<u8>) -> Section {
         for _ in 0..number_of_results {
             result_types.push(ValueType::from(section_cursor.leb_read()));
         }
-
-        // println!(
-        //     "type section: {:X}, {:X}, {:X}, {:X?}, {:X}, {:X?}",
-        //     number_of_types,
-        //     which_type,
-        //     number_of_parameters,
-        //     function_parameter_types,
-        //     number_of_results,
-        //     result_types
-        // );
         types.push(match SectionTypeId::from(which_type) {
-            SectionTypeId::Function => TypeSection::Function {
+            SectionTypeId::Function => Type::Function {
                 params: function_parameter_types,
                 results: result_types,
             },

@@ -1,5 +1,5 @@
 use crate::sections::import_section::{
-    read_import_section, ImportDesc, ImportRefType, ImportSection,
+    read_import_section, ImportDesc, Import,
 };
 use crate::sections::Section;
 use crate::types::ValueType;
@@ -16,10 +16,10 @@ fn test_read_single_function() {
     let section = read_import_section(section_bytes);
 
     let expected = Section::Import {
-        imports: vec![ImportSection {
-            import_module_name: "wasi_unstable".to_string(),
-            import_name: "fd_read".to_string(),
-            import_desc: ImportDesc::Function { type_id: 0 },
+        imports: vec![Import {
+            module_name: "wasi_unstable".to_string(),
+            name: "fd_read".to_string(),
+            desc: ImportDesc::Function { type_id: 0 },
         }],
     };
 
@@ -42,15 +42,15 @@ fn test_read_two_functions_one_type() {
 
     let expected = Section::Import {
         imports: vec![
-            ImportSection {
-                import_module_name: "wasi_unstable".to_string(),
-                import_name: "fd_read".to_string(),
-                import_desc: ImportDesc::Function { type_id: 0 },
+            Import {
+                module_name: "wasi_unstable".to_string(),
+                name: "fd_read".to_string(),
+                desc: ImportDesc::Function { type_id: 0 },
             },
-            ImportSection {
-                import_module_name: "wasi_unstable".to_string(),
-                import_name: "fd_write".to_string(),
-                import_desc: ImportDesc::Function { type_id: 0 },
+            Import {
+                module_name: "wasi_unstable".to_string(),
+                name: "fd_write".to_string(),
+                desc: ImportDesc::Function { type_id: 0 },
             },
         ],
     };
@@ -68,15 +68,15 @@ fn test_read_two_functions_two_types() {
 
     let expected = Section::Import {
         imports: vec![
-            ImportSection {
-                import_module_name: "func_1".to_string(),
-                import_name: "one".to_string(),
-                import_desc: ImportDesc::Function { type_id: 0 },
+            Import {
+                module_name: "func_1".to_string(),
+                name: "one".to_string(),
+                desc: ImportDesc::Function { type_id: 0 },
             },
-            ImportSection {
-                import_module_name: "func_2".to_string(),
-                import_name: "two".to_string(),
-                import_desc: ImportDesc::Function { type_id: 1 },
+            Import {
+                module_name: "func_2".to_string(),
+                name: "two".to_string(),
+                desc: ImportDesc::Function { type_id: 1 },
             },
         ],
     };
@@ -95,18 +95,18 @@ fn test_read_table_import_and_memory() {
 
     let expected = Section::Import {
         imports: vec![
-            ImportSection {
-                import_module_name: "js".to_string(),
-                import_name: "tbl".to_string(),
-                import_desc: ImportDesc::Table {
-                    ref_type: ImportRefType::FuncRef,
+            Import {
+                module_name: "js".to_string(),
+                name: "tbl".to_string(),
+                desc: ImportDesc::Table {
+                    ref_type: ValueType::FuncRef,
                     limits: vec![2],
                 },
             },
-            ImportSection {
-                import_module_name: "js".to_string(),
-                import_name: "mem".to_string(),
-                import_desc: ImportDesc::Memory { limits: vec![1] },
+            Import {
+                module_name: "js".to_string(),
+                name: "mem".to_string(),
+                desc: ImportDesc::Memory { limits: vec![1] },
             },
         ],
     };
@@ -124,18 +124,18 @@ fn test_read_table_import_limit() {
 
     let expected = Section::Import {
         imports: vec![
-            ImportSection {
-                import_module_name: "js".to_string(),
-                import_name: "tbl".to_string(),
-                import_desc: ImportDesc::Table {
-                    ref_type: ImportRefType::FuncRef,
+            Import {
+                module_name: "js".to_string(),
+                name: "tbl".to_string(),
+                desc: ImportDesc::Table {
+                    ref_type: ValueType::FuncRef,
                     limits: vec![2, 2],
                 },
             },
-            ImportSection {
-                import_module_name: "js".to_string(),
-                import_name: "mem".to_string(),
-                import_desc: ImportDesc::Memory { limits: vec![1, 2] },
+            Import {
+                module_name: "js".to_string(),
+                name: "mem".to_string(),
+                desc: ImportDesc::Memory { limits: vec![1, 2] },
             },
         ],
     };
@@ -153,10 +153,10 @@ fn test_import_global() {
 
     let expected = Section::Import {
         imports: vec![
-            ImportSection {
-                import_module_name: "hello".to_string(),
-                import_name: "world".to_string(),
-                import_desc: ImportDesc::Global {
+            Import {
+                module_name: "hello".to_string(),
+                name: "world".to_string(),
+                desc: ImportDesc::Global {
                     val_type: ValueType::I32,
                     mutable: false
                 }
@@ -170,7 +170,6 @@ fn test_import_global() {
 #[test]
 fn test_import_two_globals_one_mutable() {
     use ImportDesc::*;
-    use Section::Import;
     use ValueType::I32;
     let section_bytes = vec![
         0x2,
@@ -183,20 +182,20 @@ fn test_import_two_globals_one_mutable() {
     ];
     let section = read_import_section(section_bytes);
 
-    let expected = Import {
+    let expected = Section::Import {
         imports: vec![
-            ImportSection {
-                import_module_name: "hello".to_string(),
-                import_name: "world".to_string(),
-                import_desc: Global {
+            Import {
+                module_name: "hello".to_string(),
+                name: "world".to_string(),
+                desc: Global {
                     val_type: I32,
                     mutable: false
                 }
             },
-            ImportSection {
-                import_module_name: "hello1".to_string(),
-                import_name: "world1".to_string(),
-                import_desc: Global {
+            Import {
+                module_name: "hello1".to_string(),
+                name: "world1".to_string(),
+                desc: Global {
                     val_type: I32,
                     mutable: true
                 }
