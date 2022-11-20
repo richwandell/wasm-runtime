@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+rm wasm/*.wasm
 
 for FILE in wat/*; do
   if [[ $FILE == *".wat"* ]]; then

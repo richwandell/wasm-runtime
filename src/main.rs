@@ -1,12 +1,11 @@
-
 extern crate core;
 
-mod tests;
-mod sections;
-mod num_enum;
 mod instructions;
-mod utils;
+mod num_enum;
+mod sections;
+mod tests;
 mod types;
+mod utils;
 
 fn main() {
     println!("Hello, world!");

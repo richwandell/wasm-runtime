@@ -1,8 +1,7 @@
 use std::io::{Cursor, Read};
-use Bool::{Yes, No};
+use Bool::{No, Yes};
 
 use crate::num_enum;
-use crate::sections::export_section::{ExportDesc, ExportDescId, ExportSection};
 use crate::sections::Section;
 use crate::types::ValueType;
 use crate::utils::JustRead;
@@ -27,18 +26,18 @@ num_enum! {Bool {
 #[derive(Clone, Debug, PartialEq)]
 pub(crate) enum ImportDesc {
     Function {
-        id: u32
+        type_id: u32,
     },
     Table {
         ref_type: ImportRefType,
-        limits: Vec<u32>
+        limits: Vec<u32>,
     },
     Memory {
-        limits: Vec<u32>
+        limits: Vec<u32>,
     },
     Global {
         val_type: ValueType,
-        mutable: bool
+        mutable: bool,
     },
 }
 
@@ -60,53 +59,48 @@ pub(crate) fn read_import_section(section_rest: Vec<u8>) -> Section {
 
         let length_of_import_name_name = section_cursor.leb_read();
         let mut import_name_name = vec![0; length_of_import_name_name as usize];
-        section_cursor.read_exact(&mut import_name_name).expect("TODO: panic message");
-        let mut description_type = section_cursor.just_read(1)[0];
+        section_cursor
+            .read_exact(&mut import_name_name)
+            .expect("TODO: panic message");
+        let description_type = section_cursor.just_read(1)[0];
 
         import_sections.push(ImportSection {
             import_module_name: str::from_utf8(&import_module_name).unwrap().to_string(),
             import_name: str::from_utf8(&import_name_name).unwrap().to_string(),
             import_desc: match ImportDescId::from(description_type) {
                 ImportDescId::Function => ImportDesc::Function {
-                    id:  section_cursor.leb_read() as u32
+                    type_id: section_cursor.leb_read() as u32,
                 },
                 ImportDescId::Table => ImportDesc::Table {
                     ref_type: ImportRefType::from(section_cursor.just_read(1)[0]),
                     limits: match Bool::from(section_cursor.just_read(1)[0]) {
                         No => vec![section_cursor.leb_read() as u32],
-                        Yes => vec![section_cursor.leb_read() as u32, section_cursor.leb_read() as u32]
-                    }
+                        Yes => vec![
+                            section_cursor.leb_read() as u32,
+                            section_cursor.leb_read() as u32,
+                        ],
+                    },
                 },
                 ImportDescId::Memory => ImportDesc::Memory {
                     limits: match Bool::from(section_cursor.just_read(1)[0]) {
                         No => vec![section_cursor.leb_read() as u32],
-                        Yes => vec![section_cursor.leb_read() as u32, section_cursor.leb_read() as u32]
-                    }
+                        Yes => vec![
+                            section_cursor.leb_read() as u32,
+                            section_cursor.leb_read() as u32,
+                        ],
+                    },
                 },
                 ImportDescId::Global => ImportDesc::Global {
                     val_type: ValueType::from(section_cursor.just_read(1)[0]),
                     mutable: match Bool::from(section_cursor.just_read(1)[0]) {
                         No => false,
-                        Yes => true
-                    }
-                }
+                        Yes => true,
+                    },
+                },
             },
         });
-
-        // println!(
-        //     "import section: {:X}, {:X}, {:X?}, {:X}, {:X?}, {:X}, {:X}, {}, {}",
-        //     number_of_imports,
-        //     length_of_import_module_name,
-        //     import_module_name,
-        //     length_of_import_name_name,
-        //     import_name_name,
-        //     description_type,
-        //     description_id,
-        //     str::from_utf8(&import_module_name).unwrap(),
-        //     str::from_utf8(&import_name_name).unwrap()
-        // );
     }
     Section::Import {
-        imports: import_sections
+        imports: import_sections,
     }
 }

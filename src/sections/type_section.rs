@@ -1,7 +1,7 @@
-use std::io::Cursor;
 use crate::num_enum;
 use crate::sections::Section;
 use crate::types::ValueType;
+use std::io::Cursor;
 
 use crate::utils::JustRead;
 
@@ -13,8 +13,8 @@ num_enum! {SectionTypeId {
 pub(crate) enum TypeSection {
     Function {
         params: Vec<ValueType>,
-        results: Vec<ValueType>
-    }
+        results: Vec<ValueType>,
+    },
 }
 
 pub(crate) fn read_type_section(section_rest: Vec<u8>) -> Section {
@@ -47,12 +47,10 @@ pub(crate) fn read_type_section(section_rest: Vec<u8>) -> Section {
         types.push(match SectionTypeId::from(which_type) {
             SectionTypeId::Function => TypeSection::Function {
                 params: function_parameter_types,
-                results: result_types
-            }
+                results: result_types,
+            },
         });
     }
 
-    Section::Type {
-        types
-    }
+    Section::Type { types }
 }

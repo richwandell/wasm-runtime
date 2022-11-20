@@ -13,11 +13,11 @@ maybe a few videos and talks on how wasm works.
 * [ ] Read all sections
     * [ ] Custom = 0,
     * [x] Type = 1,
-    * [ ] Import = 2,
+    * [x] Import = 2,
         * [x] Table
         * [x] Memory
-        * [ ] Global
-        * [ ] Function
+        * [x] Global
+        * [x] Function
     * [x] Function = 3,
     * [ ] Table = 4,
     * [ ] Memory = 5,

@@ -23,38 +23,26 @@ pub(crate) enum Inst {
     BrTable,
     // 0x0f
     Return,
+
     // 0x10
-    Call {
-        x: u8
-    },
+    Call { x: u8 },
     // 0x11
-    CallIndirect {
-        x: u8
-    },
+    CallIndirect { x: u8 },
     // 0x1a
     Drop,
     // 0x1b
     Select,
+
     // 0x20
-    LocalGet {
-        x: u8
-    },
+    LocalGet { x: usize },
     // 0x21
-    LocalSet {
-        x: u8
-    },
+    LocalSet { x: usize },
     // 0x22
-    LocalTee {
-        x: u8
-    },
+    LocalTee { x: usize },
     // 0x23
-    GlobalGet {
-        x: u8
-    },
+    GlobalGet { x: usize },
     // 0x24
-    GlobalSet {
-        x: u8
-    },
+    GlobalSet { x: usize },
     // 0x28
     I32Load,
     // 0x29
@@ -67,6 +55,7 @@ pub(crate) enum Inst {
     I32Load8s,
     // 0x2d
     I23Load8u,
+
     // 0x38
     F32Store,
     // 0x39
@@ -79,6 +68,7 @@ pub(crate) enum Inst {
     F32Const,
     // 0x44
     F64Const,
+
     // 0x61
     F64Eq,
     // 0x62
@@ -87,4 +77,9 @@ pub(crate) enum Inst {
     F64Lt,
     // 0x64
     F64Gt,
+    // 0x6A
+    I32Add,
+
+    // 0x93
+    F32Sub
 }
