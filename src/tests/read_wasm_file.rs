@@ -7,7 +7,5 @@ fn read_wasm_file() {
     read_wasm_file!(cursor, "wasm/add.wasm");
 
     let sections = read_sections(&mut cursor);
-    println!("{:?}", sections);
-
-
+    println!("{:#?}", sections);
 }

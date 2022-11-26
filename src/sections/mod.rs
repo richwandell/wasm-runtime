@@ -5,6 +5,7 @@ use crate::sections::code_section::{Code, read_code_section};
 use crate::sections::data_section::{Data, read_data_section};
 use crate::sections::export_section::{read_export_section, Export};
 use crate::sections::function_section::{Function, read_function_section};
+use crate::sections::global_section::{Global, read_global_section};
 use crate::sections::import_section::{read_import_section, Import};
 use crate::sections::memory_section::{Memory, read_memory_section};
 use crate::sections::table_section::{read_table_section, Table};
@@ -19,6 +20,7 @@ pub(crate) mod type_section;
 pub(crate) mod table_section;
 pub(crate) mod memory_section;
 pub(crate) mod data_section;
+pub(crate) mod global_section;
 
 num_enum! {SectionId {
     Custom = 0,
@@ -47,6 +49,7 @@ pub(crate) enum Section {
     Memory { memories: Vec<Memory>},
     Table { tables: Vec<Table>},
     Data { segments: Vec<Data> },
+    Global { globals: Vec<Global> },
     NotImplemented,
 }
 
@@ -107,6 +110,11 @@ pub(crate) fn read_sections(cursor: &mut Cursor<&Vec<u8>>) -> Vec<Section> {
                 #[cfg(feature = "print_in_tests")]
                 println!("data section: {:X?}", section_rest);
                 read_data_section(section_rest)
+            },
+            SectionId::Global => {
+                #[cfg(feature = "print_in_tests")]
+                println!("global section: {:X?}", section_rest);
+                read_global_section(section_rest)
             },
             _ => {
                 #[cfg(feature = "print_in_tests")]

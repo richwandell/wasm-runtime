@@ -8,3 +8,4 @@ mod read_code_section;
 mod read_table_section;
 mod read_memory_section;
 mod read_data_section;
+mod read_global_section;
