@@ -27,6 +27,13 @@ maybe a few videos and talks on how wasm works.
 * [ ] Create Enums for each type of section
 * [ ] Create Enums for each instruction
     * [ ] Parse code section into instruction enums
+* WASI
+* [ ] [application abi](https://github.com/WebAssembly/wasi-io/blob/main/design/application-abi.md)
+    * [ ] _start
+    * [ ] _initialize
+    * [ ] export linear memory
+    * [ ] export __indirect_function_table
+* [ ] [optional imports](https://github.com/WebAssembly/wasi-io/blob/main/design/optional-imports.md)
 
 # build.sh
 

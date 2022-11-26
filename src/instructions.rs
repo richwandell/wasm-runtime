@@ -1,5 +1,6 @@
+use std::io::Cursor;
+
 use crate::instructions::Inst::{Block, Else, End, F32Sub, I32Add, I32Const, I32Store, If, LocalGet, LocalSet, LocalTee, Loop, MemGrow, Nop, Unreachable};
-use std::io::{Cursor};
 use crate::utils::JustRead;
 
 #[allow(dead_code)]
@@ -36,6 +37,8 @@ pub(crate) enum Inst {
     Drop,
     // 0x1b
     Select,
+    // 0x1c
+    SelectT { t: u8 },
 
     // 0x20
     LocalGet { x: usize },
@@ -47,6 +50,10 @@ pub(crate) enum Inst {
     GlobalGet { x: usize },
     // 0x24
     GlobalSet { x: usize },
+    // 0x25
+    TableGet { x: usize },
+    // 0x26
+    TableSet { x: usize },
     // 0x28
     I32Load,
     // 0x29
@@ -59,11 +66,24 @@ pub(crate) enum Inst {
     I32Load8s,
     // 0x2d
     I23Load8u,
+    // 0x2e
+    I32Load16s,
+    // 0x2f
+    I32Load16u,
+
+    // 0x30
+    I64Load8s,
+    // 0x31
+    I64Load8u,
+    // 0x32
+    I64Load16s,
+    // 0x33
+    I64Load16u,
 
     //0x36
     I32Store {
         offset: u32,
-        align: u32
+        align: u32,
     },
     // 0x38
     F32Store,
@@ -92,7 +112,7 @@ pub(crate) enum Inst {
     I32Add,
 
     // 0x93
-    F32Sub
+    F32Sub,
 }
 
 pub(crate) fn get_inst(inst: u8, cursor: &mut Cursor<&Vec<u8>>) -> Inst {
@@ -115,7 +135,7 @@ pub(crate) fn get_inst(inst: u8, cursor: &mut Cursor<&Vec<u8>>) -> Inst {
         },
         0x36 => I32Store {
             offset: cursor.leb_read() as u32,
-            align: cursor.leb_read() as u32
+            align: cursor.leb_read() as u32,
         },
         0x40 => MemGrow,
         0x41 => I32Const {
