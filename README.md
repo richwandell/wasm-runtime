@@ -17,7 +17,7 @@ maybe a few videos and talks on how wasm works.
     * [x] Function = 3,
     * [x] Table = 4,
     * [x] Memory = 5,
-    * [ ] Global = 6,
+    * [x] Global = 6,
     * [x] Export = 7,
     * [ ] Start = 8,
     * [ ] Element = 9,
