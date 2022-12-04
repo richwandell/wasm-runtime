@@ -1,6 +1,6 @@
 use std::io::Cursor;
 
-use crate::instructions::Inst::{Block, Else, End, F32Sub, I32Add, I32Const, I32Store, If, LocalGet, LocalSet, LocalTee, Loop, MemGrow, Nop, Unreachable};
+use crate::instructions::Inst::{Drop, Block, Else, End, F32Sub, I32Add, I32Const, I32Store, If, LocalGet, LocalSet, LocalTee, Loop, MemGrow, Nop, Unreachable, Call};
 use crate::utils::JustRead;
 
 #[allow(dead_code)]
@@ -79,17 +79,33 @@ pub(crate) enum Inst {
     I64Load16s,
     // 0x33
     I64Load16u,
-
+    // 0x34
+    I64Load32s,
+    // 0x35
+    I64Load32u,
     //0x36
     I32Store {
         offset: u32,
         align: u32,
     },
+    // 0x37
+    I64Store {
+        offset: u32,
+        align: u32
+    },
     // 0x38
     F32Store,
     // 0x39
     F64Store,
-    // 0x34
+    // 0x3A
+    I32Store8,
+    // 0x3B
+    I32Store16,
+    // 0x3C
+    I64Store8,
+    // 0x3D
+    I64Store16,
+    // 0x3F
     MemSize,
     // 0x40
     MemGrow,
@@ -124,6 +140,10 @@ pub(crate) fn get_inst(inst: u8, cursor: &mut Cursor<&Vec<u8>>) -> Inst {
         0x04 => If,
         0x05 => Else,
         0x0b => End,
+        0x10 => Call {
+            x: cursor.just_read(1)[0]
+        },
+        0x1a => Drop,
         0x20 => LocalGet {
             x: cursor.just_read(1)[0] as usize
         },
@@ -144,7 +164,7 @@ pub(crate) fn get_inst(inst: u8, cursor: &mut Cursor<&Vec<u8>>) -> Inst {
         0x6A => I32Add,
         0x93 => F32Sub,
         _ => {
-            println!("{:X}", inst);
+            println!("unimplemented instruction {:X}", inst);
             Nop
         }
     }

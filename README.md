@@ -19,9 +19,25 @@ maybe a few videos and talks on how wasm works.
     * [x] Memory = 5,
     * [x] Global = 6,
     * [x] Export = 7,
-    * [ ] Start = 8,
+    * [x] Start = 8,
     * [ ] Element = 9,
     * [ ] Code = 10,
+        * [ ] test 0 page
+        * [ ] test 1 page
+        * [ ] test 2 page
+        * [ ] test 3 page
+        * [ ] test 4 page
+        * [ ] test 5 page
+        * [ ] test 6 page
+        * [ ] test 7 page
+        * [ ] test 8 page
+        * [ ] test 9 page
+        * [ ] test A page
+        * [ ] test B page
+        * [ ] test C page
+        * [ ] test D page
+        * [ ] test E page
+        * [ ] test F page
     * [x] Data = 11,
     * [ ] DataCount = 12
 * [ ] Create Enums for each type of section

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-rm wasm/*.wasm
+#rm wasm/*.wasm
 
 if [ "$1" != "" ]; then
     FILE="$1"
