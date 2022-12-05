@@ -1,7 +1,20 @@
 use std::io::Cursor;
+use crate::instructions::BlockType::{Empty, Index, Value};
 
-use crate::instructions::Inst::{Drop, Block, Else, End, F32Sub, I32Add, I32Const, I32Store, If, LocalGet, LocalSet, LocalTee, Loop, MemGrow, Nop, Unreachable, Call};
+use crate::instructions::Inst::{Drop, Block, Else, End, F32Sub, I32Add, I32Const, I32Store, If, LocalGet, LocalSet, LocalTee, Loop, MemGrow, Nop, Unreachable, Call, Br, BrIf, BrTable, Return};
+use crate::types::ValueType;
 use crate::utils::JustRead;
+
+#[derive(Clone, Debug, PartialEq)]
+pub(crate) enum BlockType {
+    Empty,
+    Value {
+        t: ValueType
+    },
+    Index {
+        i: usize
+    }
+}
 
 #[allow(dead_code)]
 #[derive(Clone, Debug, PartialEq)]
@@ -11,7 +24,10 @@ pub(crate) enum Inst {
     // 0x01
     Nop,
     // 0x02
-    Block,
+    Block {
+        block_type: BlockType,
+        inst: Vec<Inst>
+    },
     // 0x03
     Loop,
     // 0x04
@@ -135,11 +151,45 @@ pub(crate) fn get_inst(inst: u8, cursor: &mut Cursor<&Vec<u8>>) -> Inst {
     match inst {
         0x0 => Unreachable,
         0x01 => Nop,
-        0x02 => Block,
+        0x02 => {
+            let block_type = cursor.leb_read();
+            let mut inst = vec![];
+            loop {
+                let next_byte = cursor.just_read(1)[0];
+                let new_inst = get_inst(next_byte, cursor);
+                match new_inst {
+                    End | Else => {
+                        inst.push(new_inst);
+                        break;
+                    }
+                    _ => {
+                        inst.push(new_inst);
+                    }
+                }
+            }
+            Block {
+                block_type: match block_type {
+                    0x40 => Empty,
+                    0x7F | 0x7E | 0x7D | 0x7C | 0x7B | 0x70 | 0x6F => Value {
+                        t: ValueType::from(block_type)
+                    },
+                    _ => Index {
+                        i: block_type as usize
+                    }
+                },
+                inst
+            }
+        },
         0x03 => Loop,
         0x04 => If,
         0x05 => Else,
+
         0x0b => End,
+        0x0c => Br,
+        0x0d => BrIf,
+        0x0e => BrTable,
+        0x0f => Return,
+
         0x10 => Call {
             x: cursor.just_read(1)[0]
         },
