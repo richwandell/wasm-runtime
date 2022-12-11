@@ -22,22 +22,22 @@ maybe a few videos and talks on how wasm works.
     * [x] Start = 8,
     * [ ] Element = 9,
     * [ ] Code = 10,
-        * [x] test 0 page
-        * [ ] test 1 page
-        * [ ] test 2 page
-        * [ ] test 3 page
-        * [ ] test 4 page
-        * [ ] test 5 page
-        * [ ] test 6 page
-        * [ ] test 7 page
-        * [ ] test 8 page
-        * [ ] test 9 page
-        * [ ] test A page
-        * [ ] test B page
-        * [ ] test C page
-        * [ ] test D page
-        * [ ] test E page
-        * [ ] test F page
+        * [x] test 0
+        * [ ] test 1
+        * [ ] test 2
+        * [ ] test 3
+        * [ ] test 4
+        * [ ] test 5
+        * [ ] test 6
+        * [ ] test 7
+        * [ ] test 8
+        * [ ] test 9
+        * [ ] test A
+        * [ ] test B
+        * [ ] test C
+        * [ ] test D
+        * [ ] test E
+        * [ ] test F
     * [x] Data = 11,
     * [ ] DataCount = 12
 * [ ] Create Enums for each type of section
