@@ -1,7 +1,7 @@
 use std::io::Cursor;
-use crate::instructions::BlockType::{Empty, Index, Value};
 
-use crate::instructions::Inst::{Drop, Block, Else, End, F32Sub, I32Add, I32Const, I32Store, If, LocalGet, LocalSet, LocalTee, Loop, MemGrow, Nop, Unreachable, Call, Br, BrIf, BrTable, Return};
+use crate::instructions::BlockType::{Empty, Index, Value};
+use crate::instructions::Inst::{Block, Br, BrIf, BrTable, Call, Drop, Else, End, F32Sub, I32Add, I32Const, I32Eq, I32LtS, I32Ne, I32Store, If, LocalGet, LocalSet, LocalTee, Loop, MemGrow, Nop, Return, Unreachable};
 use crate::types::ValueType;
 use crate::utils::JustRead;
 
@@ -13,7 +13,7 @@ pub(crate) enum BlockType {
     },
     Index {
         i: usize
-    }
+    },
 }
 
 #[allow(dead_code)]
@@ -25,23 +25,33 @@ pub(crate) enum Inst {
     Nop,
     // 0x02
     Block {
-        block_type: BlockType,
-        inst: Vec<Inst>
+        block_type: BlockType
     },
     // 0x03
-    Loop,
+    Loop {
+        block_type: BlockType
+    },
     // 0x04
-    If,
+    If {
+        block_type: BlockType
+    },
     // 0x05
     Else,
     // 0x0b
     End,
     // 0x0c
-    Br,
+    Br {
+        l: usize
+    },
     // 0x0d
-    BrIf,
+    BrIf {
+        l: usize
+    },
     // 0x0e
-    BrTable,
+    BrTable {
+        labels: Vec<usize>,
+        label_id: usize
+    },
     // 0x0f
     Return,
 
@@ -107,7 +117,7 @@ pub(crate) enum Inst {
     // 0x37
     I64Store {
         offset: u32,
-        align: u32
+        align: u32,
     },
     // 0x38
     F32Store,
@@ -123,6 +133,7 @@ pub(crate) enum Inst {
     I64Store16,
     // 0x3F
     MemSize,
+
     // 0x40
     MemGrow,
     // 0x41
@@ -131,6 +142,26 @@ pub(crate) enum Inst {
     F32Const,
     // 0x44
     F64Const,
+    //0x46
+    I32Eq,
+    // 0x47
+    I32Ne,
+    // 0x48
+    I32LtS,
+    // 0x49
+    I32LtU,
+    // 0x4A
+    I32GtS,
+    // 0x4B
+    I32GtU,
+    // 0x4C
+    I32LeS,
+    // 0x4D
+    I32LeU,
+    // 0x4E
+    I32GeS,
+    // 0x4F
+    I32GeU,
 
     // 0x61
     F64Eq,
@@ -153,20 +184,6 @@ pub(crate) fn get_inst(inst: u8, cursor: &mut Cursor<&Vec<u8>>) -> Inst {
         0x01 => Nop,
         0x02 => {
             let block_type = cursor.leb_read();
-            let mut inst = vec![];
-            loop {
-                let next_byte = cursor.just_read(1)[0];
-                let new_inst = get_inst(next_byte, cursor);
-                match new_inst {
-                    End | Else => {
-                        inst.push(new_inst);
-                        break;
-                    }
-                    _ => {
-                        inst.push(new_inst);
-                    }
-                }
-            }
             Block {
                 block_type: match block_type {
                     0x40 => Empty,
@@ -176,18 +193,58 @@ pub(crate) fn get_inst(inst: u8, cursor: &mut Cursor<&Vec<u8>>) -> Inst {
                     _ => Index {
                         i: block_type as usize
                     }
-                },
-                inst
+                }
             }
-        },
-        0x03 => Loop,
-        0x04 => If,
+        }
+        0x03 => {
+            let block_type = cursor.leb_read();
+            Loop {
+                block_type: match block_type {
+                    0x40 => Empty,
+                    0x7F | 0x7E | 0x7D | 0x7C | 0x7B | 0x70 | 0x6F => Value {
+                        t: ValueType::from(block_type)
+                    },
+                    _ => Index {
+                        i: block_type as usize
+                    }
+                }
+            }
+        }
+        0x04 => {
+            let block_type = cursor.leb_read();
+            If {
+                block_type: match block_type {
+                    0x40 => Empty,
+                    0x7F | 0x7E | 0x7D | 0x7C | 0x7B | 0x70 | 0x6F => Value {
+                        t: ValueType::from(block_type)
+                    },
+                    _ => Index {
+                        i: block_type as usize
+                    }
+                }
+            }
+        }
         0x05 => Else,
 
         0x0b => End,
-        0x0c => Br,
-        0x0d => BrIf,
-        0x0e => BrTable,
+        0x0c => Br {
+            l: cursor.leb_read() as usize
+        },
+        0x0d => BrIf {
+            l: cursor.leb_read() as usize
+        },
+        0x0e => {
+            let label_length = cursor.leb_read();
+            let mut labels = Vec::new();
+            for _ in 0..label_length {
+                labels.push(cursor.leb_read() as usize);
+            }
+            let label_id = cursor.leb_read() as usize;
+            BrTable {
+                labels,
+                label_id
+            }
+        },
         0x0f => Return,
 
         0x10 => Call {
@@ -211,6 +268,9 @@ pub(crate) fn get_inst(inst: u8, cursor: &mut Cursor<&Vec<u8>>) -> Inst {
         0x41 => I32Const {
             n: cursor.leb_read() as i32
         },
+        0x46 => I32Eq,
+        0x47 => I32Ne,
+        0x48 => I32LtS,
         0x6A => I32Add,
         0x93 => F32Sub,
         _ => {

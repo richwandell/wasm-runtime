@@ -22,7 +22,7 @@ maybe a few videos and talks on how wasm works.
     * [x] Start = 8,
     * [ ] Element = 9,
     * [ ] Code = 10,
-        * [ ] test 0 page
+        * [x] test 0 page
         * [ ] test 1 page
         * [ ] test 2 page
         * [ ] test 3 page
